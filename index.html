@@ -662,9 +662,22 @@ const faqs = [
   {q:'Do you ship internationally?', a:'Yes! We ship to 50+ countries. International shipping takes 7–14 business days. Duties and taxes may apply depending on your country.'},
 ];
 
-// ===== CART STATE =====
-let cart = JSON.parse(localStorage.getItem('hecharr_cart') || '[]');
+// ===== CART STATE (per-user) =====
+function getCartKey() {
+  return user ? `hecharr_cart_${user.id}` : 'hecharr_cart_guest';
+}
+function loadCart() {
+  try { return JSON.parse(localStorage.getItem(getCartKey()) || '[]'); } catch(e) { return []; }
+}
+let cart = []; // will be loaded after user state is set
 let user = JSON.parse(localStorage.getItem('hecharr_user') || 'null');
+// Now load the correct cart for this user (or guest)
+cart = (function() {
+  try { 
+    const key = user ? `hecharr_cart_${user.id}` : 'hecharr_cart_guest';
+    return JSON.parse(localStorage.getItem(key) || '[]'); 
+  } catch(e) { return []; }
+})();
 let selectedSubOption = 'monthly';
 let checkoutStep = 1;
 let checkoutData = {};
@@ -746,9 +759,68 @@ function renderSubscription() {
         </div>
       `).join('')}
     </div>
-    <button class="btn-modal" onclick="addSubToCart()">Subscribe & Save →</button>
+    <button class="btn-modal" onclick="handleSubscribe()">Subscribe & Save →</button>
+    <button class="btn-modal" style="background:transparent;color:var(--coral);border:1.5px solid var(--coral);margin-top:4px" onclick="addSubToCart()">Or Add to Cart as One-Time</button>
     <div style="text-align:center;font-size:12px;color:var(--mid);margin-top:10px">🔒 Cancel anytime · Free shipping · No commitment</div>
+    <div style="text-align:center;font-size:11px;color:var(--mid);margin-top:6px;font-style:italic">Note: "Subscribe & Save" requires <a href="#" onclick="event.preventDefault();document.getElementById('subSetupInfo').style.display=document.getElementById('subSetupInfo').style.display==='none'?'block':'none'" style="color:var(--coral);text-decoration:underline">Stripe Products setup</a></div>
+    <div id="subSetupInfo" style="display:none;margin-top:10px;background:var(--light);padding:14px;border-radius:12px;font-size:12px;color:var(--warm);line-height:1.6;text-align:left">
+      <strong>To enable real subscriptions:</strong><br>
+      1. Stripe Dashboard → Products → Add product<br>
+      2. Set name (e.g. "Daily Essentials Monthly") & price as recurring<br>
+      3. Copy the Price ID (starts with <code>price_...</code>)<br>
+      4. Set <code>STRIPE_PRICE_MONTHLY</code>, <code>STRIPE_PRICE_BIMONTHLY</code>, <code>STRIPE_PRICE_QUARTERLY</code> in your env vars or update the code<br>
+      5. The "Subscribe & Save" button will then redirect to Stripe Checkout
+    </div>
   `;
+}
+
+// Stripe subscription price IDs — replace with your real ones from Stripe Dashboard → Products
+const SUBSCRIPTION_PRICE_IDS = {
+  monthly:   '', // e.g. 'price_1Abc123...'
+  bimonthly: '', // e.g. 'price_1Def456...'
+  quarterly: '', // e.g. 'price_1Ghi789...'
+};
+
+async function handleSubscribe() {
+  const priceId = SUBSCRIPTION_PRICE_IDS[selectedSubOption];
+
+  if (!priceId) {
+    showToast('ℹ️', 'Subscription products not yet configured in Stripe. Adding to cart as one-time purchase instead.', '');
+    addSubToCart();
+    return;
+  }
+
+  if (!user) {
+    showToast('⚠️', 'Please log in or sign up first to subscribe.', 'error');
+    openModal('login');
+    return;
+  }
+
+  try {
+    showToast('⏳', 'Redirecting to Stripe Checkout...', '');
+    const currentUrl = window.location.origin + window.location.pathname;
+    const res = await fetch(`${BACKEND_URL}/create-subscription`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        priceId,
+        customer: {
+          email: user.email,
+          firstName: user.firstName || user.name?.split(' ')[0] || '',
+          lastName: user.lastName || user.name?.split(' ')[1] || '',
+        },
+        successUrl: currentUrl + '?subscription=success',
+        cancelUrl:  currentUrl + '?subscription=cancelled',
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.url) throw new Error(data.error || 'Failed to create subscription session.');
+    // Redirect to Stripe Checkout
+    window.location.href = data.url;
+  } catch (err) {
+    console.error('Subscription error:', err);
+    showToast('❌', err.message || 'Subscription failed.', 'error');
+  }
 }
 
 function renderFAQ() {
@@ -769,7 +841,7 @@ function toggleFAQ(i) {
 }
 
 // ===== CART =====
-function saveCart() { localStorage.setItem('hecharr_cart', JSON.stringify(cart)); }
+function saveCart() { localStorage.setItem(getCartKey(), JSON.stringify(cart)); }
 
 function addToCart(productId) {
   const p = products.find(x => x.id === productId);
@@ -910,13 +982,35 @@ async function handleLogin() {
     const data = await res.json();
     if (!res.ok || !data.success) throw new Error(data.error || 'Login failed.');
 
+    // Save any current guest cart items before switching
+    const guestCart = [...cart];
+
     // Save user + session
     user = data.user;
     localStorage.setItem('hecharr_user',    JSON.stringify(user));
     localStorage.setItem('hecharr_session', JSON.stringify(data.session));
 
+    // Load user's saved cart
+    cart = loadCart();
+
+    // Merge guest cart items into user cart (avoid duplicates by id)
+    if (guestCart.length > 0) {
+      guestCart.forEach(guestItem => {
+        const existing = cart.find(i => i.id === guestItem.id && !i.sub);
+        if (existing) {
+          existing.qty += guestItem.qty;
+        } else {
+          cart.push(guestItem);
+        }
+      });
+      // Clear guest cart after merge
+      localStorage.removeItem('hecharr_cart_guest');
+    }
+    saveCart();
+
     closeModal('login');
     updateAuthUI();
+    updateCartUI();
     showToast('👋', `Welcome back, ${user.name.split(' ')[0]}!`, 'success');
   } catch(err) {
     errEl.textContent = err.message;
@@ -947,11 +1041,25 @@ async function handleSignup() {
     const data = await res.json();
     if (!res.ok || !data.success) throw new Error(data.error || 'Signup failed.');
 
-    user = {id:data.user.id, email, name:`${first} ${last}`.trim(), firstName:first, lastName:last};
+    // Save any guest cart before switching user
+    const guestCart = [...cart];
+
+    user = data.user;
     localStorage.setItem('hecharr_user', JSON.stringify(user));
+
+    // Save session if auto-login succeeded
+    if (data.session) {
+      localStorage.setItem('hecharr_session', JSON.stringify(data.session));
+    }
+
+    // New user starts with empty cart, but carry over guest cart items
+    cart = [...guestCart];
+    localStorage.removeItem('hecharr_cart_guest');
+    saveCart();
 
     closeModal('signup');
     updateAuthUI();
+    updateCartUI();
     showToast('🎉', `Welcome to HECHARR, ${first}!`, 'success');
   } catch(err) {
     errEl.textContent = err.message;
@@ -961,11 +1069,20 @@ async function handleSignup() {
 }
 
 function logout() {
+  // Save current user's cart before logging out
+  saveCart();
+
+  // Clear user state
   user = null;
   localStorage.removeItem('hecharr_user');
   localStorage.removeItem('hecharr_session');
   document.getElementById('userDropdown').classList.remove('open');
+
+  // Switch to guest cart (empty by default)
+  cart = loadCart();
+
   updateAuthUI();
+  updateCartUI();
   showToast('👋', 'You\'ve been logged out.', '');
 }
 
@@ -1308,6 +1425,12 @@ document.addEventListener('mousemove', e => {
 });
 
 // ===== INIT =====
+// Migrate old shared cart to guest cart (one-time migration)
+if (localStorage.getItem('hecharr_cart') && !localStorage.getItem('hecharr_cart_guest')) {
+  localStorage.setItem('hecharr_cart_guest', localStorage.getItem('hecharr_cart'));
+  localStorage.removeItem('hecharr_cart');
+}
+
 renderCurrencyDropdown();
 renderMarquee();
 renderProducts();
@@ -1317,6 +1440,19 @@ renderSubscription();
 renderFAQ();
 updateAuthUI();
 updateCartUI();
+
+// Check for subscription redirect result
+(function checkSubscriptionResult() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('subscription') === 'success') {
+    showToast('🎉', 'Subscription activated! You\'ll receive your first delivery soon.', 'success');
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+  } else if (params.get('subscription') === 'cancelled') {
+    showToast('ℹ️', 'Subscription checkout was cancelled.', '');
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
 </script>
 </body>
 </html>
