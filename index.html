@@ -535,11 +535,29 @@ footer p{font-size:11px;color:rgba(139,123,107,.5)}
 <!-- ===== SCRIPTS ===== -->
 <script>
 // ============================================================
-// CONFIG — UPDATE THESE WITH YOUR REAL VALUES BEFORE DEPLOYING
+// CONFIG — BACKEND URL is the only thing to set here.
+// The Stripe publishable key is fetched securely from /config.
 // ============================================================
-const STRIPE_PUBLISHABLE_KEY = 'pk_live_51SMpmF0sY7FDSD0V9E76gNJjk2maCQIswQNGvzgrXcBn1bt5ZWAmtmFf67bF2DQRpvTMdefNyWRJvf4h18FVLOFy00ALGqZaLa';
 const BACKEND_URL = 'https://hecharr-backend-production-ef04.up.railway.app';
 // ============================================================
+
+// Stripe instance (loaded async from /config)
+let STRIPE_PUBLISHABLE_KEY = null;
+
+// Fetch publishable key from backend on load
+(async function loadConfig() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/config`);
+    const data = await res.json();
+    if (data.publishableKey) {
+      STRIPE_PUBLISHABLE_KEY = data.publishableKey;
+    } else {
+      console.error('No publishable key returned from /config:', data.error);
+    }
+  } catch (err) {
+    console.error('Failed to load Stripe config:', err.message);
+  }
+})();
 
 // ===== CURRENCY CONFIG =====
 const CURRENCIES = [
@@ -556,6 +574,27 @@ const CURRENCIES = [
 ];
 
 let activeCurrency = CURRENCIES[0]; // default USD
+
+// Fetch live exchange rates (free, no key needed)
+(async function fetchRates() {
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    const data = await res.json();
+    if (data.result === 'success' && data.rates) {
+      CURRENCIES.forEach(c => {
+        if (c.code !== 'USD' && data.rates[c.code]) {
+          c.rate = data.rates[c.code];
+        }
+      });
+      // Re-render prices with updated rates
+      renderProducts();
+      renderSubscription();
+      updateCartUI();
+    }
+  } catch (err) {
+    console.warn('Live FX rates unavailable, using fallback rates:', err.message);
+  }
+})();
 
 function convertFromUSD(usd) {
   return usd * activeCurrency.rate;
@@ -1202,7 +1241,20 @@ function renderCheckout() {
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">State / Region</label><input class="form-input" id="co_state" placeholder="NY" value="${checkoutData.state||''}"></div>
-        <div class="form-group"><label class="form-label">Country *</label><input class="form-input" id="co_country" placeholder="United States" value="${checkoutData.country||'United States'}"></div>
+        <div class="form-group">
+          <label class="form-label">Country *</label>
+          <select class="form-input form-select" id="co_country">
+            ${[
+              ['US','United States'],['GB','United Kingdom'],['AU','Australia'],['CA','Canada'],
+              ['IN','India'],['AE','United Arab Emirates'],['SG','Singapore'],['NZ','New Zealand'],
+              ['MY','Malaysia'],['IE','Ireland'],['FR','France'],['DE','Germany'],['NL','Netherlands'],
+              ['SE','Sweden'],['NO','Norway'],['DK','Denmark'],['CH','Switzerland'],['JP','Japan'],
+              ['HK','Hong Kong'],['PH','Philippines'],['TH','Thailand'],['ZA','South Africa'],
+              ['BR','Brazil'],['MX','Mexico'],['PK','Pakistan'],['NG','Nigeria'],['KE','Kenya'],
+              ['OTHER','Other']
+            ].map(([code,name]) => `<option value="${code}" ${(checkoutData.countryCode||'US')===code?'selected':''}>${name}</option>`).join('')}
+          </select>
+        </div>
       </div>
       <button class="btn-modal" onclick="ckStep2()">Continue to Payment →</button>
       <button onclick="checkoutStep=1;renderCheckout()" style="width:100%;padding:11px;margin-top:8px;background:transparent;border:none;color:var(--mid);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px">← Back</button>
@@ -1273,7 +1325,9 @@ function ckStep2() {
   checkoutData.city     = document.getElementById('co_city').value.trim();
   checkoutData.zip      = document.getElementById('co_zip').value.trim();
   checkoutData.state    = document.getElementById('co_state').value.trim();
-  checkoutData.country  = document.getElementById('co_country').value.trim();
+  const countryEl       = document.getElementById('co_country');
+  checkoutData.countryCode = countryEl.value;
+  checkoutData.country  = countryEl.options[countryEl.selectedIndex].text;
   if (!checkoutData.address || !checkoutData.city) { showToast('⚠️','Address and city are required.','error'); return; }
   if (!checkoutData.zip) { showToast('⚠️','ZIP / postcode is required.','error'); return; }
   checkoutStep = 3; renderCheckout();
@@ -1281,15 +1335,28 @@ function ckStep2() {
 
 // ===== STRIPE =====
 function getStripe() {
-  if (!stripeInstance && typeof Stripe !== 'undefined') {
+  if (!stripeInstance && typeof Stripe !== 'undefined' && STRIPE_PUBLISHABLE_KEY) {
     stripeInstance = Stripe(STRIPE_PUBLISHABLE_KEY);
   }
   return stripeInstance;
 }
 
-function mountStripeCard() {
-  const stripe = getStripe();
-  if (!stripe) { console.error('Stripe.js not loaded'); return; }
+async function waitForStripe() {
+  // Wait up to 5s for the publishable key to load from /config
+  for (let i = 0; i < 50; i++) {
+    if (STRIPE_PUBLISHABLE_KEY) return getStripe();
+    await new Promise(r => setTimeout(r, 100));
+  }
+  return null;
+}
+
+async function mountStripeCard() {
+  const stripe = await waitForStripe();
+  if (!stripe) { 
+    document.getElementById('stripe-card-errors').textContent = 'Payment system unavailable. Please refresh.';
+    console.error('Stripe not ready — publishable key may still be loading'); 
+    return; 
+  }
   stripeElements = stripe.elements();
   cardElement = stripeElements.create('card', {
     style: {
@@ -1322,13 +1389,14 @@ async function processPayment() {
 
   try {
     // STEP 1 — Create PaymentIntent on backend
-    // We send USD cents — backend handles currency mapping
+    // Convert the display amount to the active currency's subunits
+    const localAmount = Math.round(totalUSD * activeCurrency.rate * 100);
     const intentRes = await fetch(`${BACKEND_URL}/create-payment-intent`, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
-        amount: Math.round(totalUSD * 100),   // USD cents
-        currency: 'USD',                       // always USD to backend
+        amount: localAmount,            // local currency subunits
+        currency: activeCurrency.code, // real active currency
         customer: checkoutData,
         items: cart
       })
@@ -1360,7 +1428,7 @@ async function processPayment() {
             city:        checkoutData.city     || undefined,
             postal_code: checkoutData.zip      || undefined,
             state:       checkoutData.state    || undefined,
-            country:     'US'  // billing country for card
+            country:     checkoutData.countryCode || 'US'
           }
         }
       }
@@ -1378,8 +1446,8 @@ async function processPayment() {
         paymentIntentId: paymentIntent.id,
         customer: checkoutData,
         items: cart,
-        total: totalUSD,
-        currency: 'USD',
+        total: +(totalUSD * activeCurrency.rate).toFixed(2),
+        currency: activeCurrency.code,
         authUserId: user?.id || null
       })
     });
