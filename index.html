@@ -538,11 +538,11 @@ footer p{font-size:11px;color:rgba(139,123,107,.5)}
 // CONFIG — BACKEND URL is the only thing to set here.
 // The Stripe publishable key is fetched securely from /config.
 // ============================================================
-const BACKEND_URL = 'hecharr-backend-production-ce46.up.railway.app';
+const BACKEND_URL = 'https://hecharr-backend-production-ce46.up.railway.app';
 // ============================================================
 
 // Stripe instance (loaded async from /config)
-let STRIPE_PUBLISHABLE_KEY = 'pk_live_51SMpmF0sY7FDSD0V9E76gNJjk2maCQIswQNGvzgrXcBn1bt5ZWAmtmFf67bF2DQRpvTMdefNyWRJvf4h18FVLOFy00ALGqZaLa';
+let STRIPE_PUBLISHABLE_KEY = null;
 
 // Fetch publishable key from backend on load (with retries for cold-start)
 (async function loadConfig() {
