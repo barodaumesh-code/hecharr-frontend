@@ -544,19 +544,27 @@ const BACKEND_URL = 'https://hecharr-backend-production-ef04.up.railway.app';
 // Stripe instance (loaded async from /config)
 let STRIPE_PUBLISHABLE_KEY = null;
 
-// Fetch publishable key from backend on load
+// Fetch publishable key from backend on load (with retries for cold-start)
 (async function loadConfig() {
-  try {
-    const res = await fetch(`${BACKEND_URL}/config`);
-    const data = await res.json();
-    if (data.publishableKey) {
-      STRIPE_PUBLISHABLE_KEY = data.publishableKey;
-    } else {
-      console.error('No publishable key returned from /config:', data.error);
+  const MAX_RETRIES = 5;
+  const RETRY_DELAY = 2000; // 2s between retries
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch(`${BACKEND_URL}/config`);
+      const data = await res.json();
+      if (data.publishableKey) {
+        STRIPE_PUBLISHABLE_KEY = data.publishableKey;
+        console.log('✅ Stripe publishable key loaded (attempt ' + attempt + ')');
+        return;
+      } else {
+        console.error('No publishable key returned from /config:', data.error);
+      }
+    } catch (err) {
+      console.warn(`⏳ /config fetch attempt ${attempt}/${MAX_RETRIES} failed:`, err.message);
     }
-  } catch (err) {
-    console.error('Failed to load Stripe config:', err.message);
+    if (attempt < MAX_RETRIES) await new Promise(r => setTimeout(r, RETRY_DELAY));
   }
+  console.error('❌ Failed to load Stripe config after all retries.');
 })();
 
 // ===== CURRENCY CONFIG =====
@@ -1342,8 +1350,8 @@ function getStripe() {
 }
 
 async function waitForStripe() {
-  // Wait up to 5s for the publishable key to load from /config
-  for (let i = 0; i < 50; i++) {
+  // Wait up to 15s for the publishable key to load from /config (cold starts can be slow)
+  for (let i = 0; i < 150; i++) {
     if (STRIPE_PUBLISHABLE_KEY) return getStripe();
     await new Promise(r => setTimeout(r, 100));
   }
@@ -1356,8 +1364,21 @@ async function mountStripeCard() {
 
   const stripe = await waitForStripe();
   if (!stripe) {
-    if (errEl) errEl.textContent = 'Payment system unavailable. Please refresh the page.';
-    if (payBtn) { payBtn.textContent = 'Unavailable - please refresh'; }
+    if (errEl) errEl.textContent = 'Payment system is still loading. Your backend may be starting up.';
+    if (payBtn) {
+      payBtn.textContent = 'Retry Loading Payment';
+      payBtn.disabled = false;
+      payBtn.style.opacity = '1';
+      payBtn.style.cursor = 'pointer';
+      payBtn.onclick = function() {
+        payBtn.textContent = 'Loading payment form…';
+        payBtn.disabled = true;
+        payBtn.style.opacity = '.5';
+        payBtn.style.cursor = 'not-allowed';
+        if (errEl) errEl.textContent = '';
+        mountStripeCard();
+      };
+    }
     console.error('Stripe not ready - publishable key failed to load');
     return;
   }
@@ -1487,6 +1508,8 @@ async function processPayment() {
     showToast('❌', err.message || 'Payment failed. Please try again.', 'error');
     btn.innerHTML = origText;
     btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
   }
 }
 
