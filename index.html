@@ -535,37 +535,11 @@ footer p{font-size:11px;color:rgba(139,123,107,.5)}
 <!-- ===== SCRIPTS ===== -->
 <script>
 // ============================================================
-// CONFIG — BACKEND URL is the only thing to set here.
-// The Stripe publishable key is fetched securely from /config.
+// CONFIG — UPDATE THESE WITH YOUR REAL VALUES BEFORE DEPLOYING
 // ============================================================
-const BACKEND_URL = 'https://hecharr-backend-production-ce46.up.railway.app';
+const STRIPE_PUBLISHABLE_KEY = 'pk_live_51SMpmF0sY7FDSD0V9E76gNJjk2maCQIswQNGvzgrXcBn1bt5ZWAmtmFf67bF2DQRpvTMdefNyWRJvf4h18FVLOFy00ALGqZaLa';
+const BACKEND_URL = 'https://hecharr-backend-production-ef04.up.railway.app';
 // ============================================================
-
-// Stripe instance (loaded async from /config)
-let STRIPE_PUBLISHABLE_KEY = null;
-
-// Fetch publishable key from backend on load (with retries for cold-start)
-(async function loadConfig() {
-  const MAX_RETRIES = 5;
-  const RETRY_DELAY = 2000; // 2s between retries
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      const res = await fetch(`${BACKEND_URL}/config`);
-      const data = await res.json();
-      if (data.publishableKey) {
-        STRIPE_PUBLISHABLE_KEY = data.publishableKey;
-        console.log('✅ Stripe publishable key loaded (attempt ' + attempt + ')');
-        return;
-      } else {
-        console.error('No publishable key returned from /config:', data.error);
-      }
-    } catch (err) {
-      console.warn(`⏳ /config fetch attempt ${attempt}/${MAX_RETRIES} failed:`, err.message);
-    }
-    if (attempt < MAX_RETRIES) await new Promise(r => setTimeout(r, RETRY_DELAY));
-  }
-  console.error('❌ Failed to load Stripe config after all retries.');
-})();
 
 // ===== CURRENCY CONFIG =====
 const CURRENCIES = [
@@ -582,27 +556,6 @@ const CURRENCIES = [
 ];
 
 let activeCurrency = CURRENCIES[0]; // default USD
-
-// Fetch live exchange rates (free, no key needed)
-(async function fetchRates() {
-  try {
-    const res = await fetch('https://open.er-api.com/v6/latest/USD');
-    const data = await res.json();
-    if (data.result === 'success' && data.rates) {
-      CURRENCIES.forEach(c => {
-        if (c.code !== 'USD' && data.rates[c.code]) {
-          c.rate = data.rates[c.code];
-        }
-      });
-      // Re-render prices with updated rates
-      renderProducts();
-      renderSubscription();
-      updateCartUI();
-    }
-  } catch (err) {
-    console.warn('Live FX rates unavailable, using fallback rates:', err.message);
-  }
-})();
 
 function convertFromUSD(usd) {
   return usd * activeCurrency.rate;
@@ -1249,20 +1202,7 @@ function renderCheckout() {
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">State / Region</label><input class="form-input" id="co_state" placeholder="NY" value="${checkoutData.state||''}"></div>
-        <div class="form-group">
-          <label class="form-label">Country *</label>
-          <select class="form-input form-select" id="co_country">
-            ${[
-              ['US','United States'],['GB','United Kingdom'],['AU','Australia'],['CA','Canada'],
-              ['IN','India'],['AE','United Arab Emirates'],['SG','Singapore'],['NZ','New Zealand'],
-              ['MY','Malaysia'],['IE','Ireland'],['FR','France'],['DE','Germany'],['NL','Netherlands'],
-              ['SE','Sweden'],['NO','Norway'],['DK','Denmark'],['CH','Switzerland'],['JP','Japan'],
-              ['HK','Hong Kong'],['PH','Philippines'],['TH','Thailand'],['ZA','South Africa'],
-              ['BR','Brazil'],['MX','Mexico'],['PK','Pakistan'],['NG','Nigeria'],['KE','Kenya'],
-              ['OTHER','Other']
-            ].map(([code,name]) => `<option value="${code}" ${(checkoutData.countryCode||'US')===code?'selected':''}>${name}</option>`).join('')}
-          </select>
-        </div>
+        <div class="form-group"><label class="form-label">Country *</label><input class="form-input" id="co_country" placeholder="United States" value="${checkoutData.country||'United States'}"></div>
       </div>
       <button class="btn-modal" onclick="ckStep2()">Continue to Payment →</button>
       <button onclick="checkoutStep=1;renderCheckout()" style="width:100%;padding:11px;margin-top:8px;background:transparent;border:none;color:var(--mid);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px">← Back</button>
@@ -1292,11 +1232,11 @@ function renderCheckout() {
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
         <span style="font-size:12px;color:var(--mid)">256-bit SSL · Powered by <strong style="color:#635BFF">Stripe</strong></span>
       </div>
-      <button class="btn-modal" id="payBtn" onclick="processPayment()" disabled style="opacity:.5;cursor:not-allowed">Loading payment form…</button>
+      <button class="btn-modal" id="payBtn" onclick="processPayment()">Pay ${formatPrice(totalUSD)} →</button>
       <button onclick="checkoutStep=2;renderCheckout()" style="width:100%;padding:11px;margin-top:8px;background:transparent;border:none;color:var(--mid);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px">← Back</button>
     `;
-    // Mount Stripe async — enables Pay button once card element is ready
-    mountStripeCard();
+    // Mount Stripe after DOM is ready
+    setTimeout(mountStripeCard, 60);
   } else if (checkoutStep === 4) {
     content.innerHTML = `
       <div style="text-align:center;padding:12px 0 0">
@@ -1333,9 +1273,7 @@ function ckStep2() {
   checkoutData.city     = document.getElementById('co_city').value.trim();
   checkoutData.zip      = document.getElementById('co_zip').value.trim();
   checkoutData.state    = document.getElementById('co_state').value.trim();
-  const countryEl       = document.getElementById('co_country');
-  checkoutData.countryCode = countryEl.value;
-  checkoutData.country  = countryEl.options[countryEl.selectedIndex].text;
+  checkoutData.country  = document.getElementById('co_country').value.trim();
   if (!checkoutData.address || !checkoutData.city) { showToast('⚠️','Address and city are required.','error'); return; }
   if (!checkoutData.zip) { showToast('⚠️','ZIP / postcode is required.','error'); return; }
   checkoutStep = 3; renderCheckout();
@@ -1343,52 +1281,15 @@ function ckStep2() {
 
 // ===== STRIPE =====
 function getStripe() {
-  if (!stripeInstance && typeof Stripe !== 'undefined' && STRIPE_PUBLISHABLE_KEY) {
+  if (!stripeInstance && typeof Stripe !== 'undefined') {
     stripeInstance = Stripe(STRIPE_PUBLISHABLE_KEY);
   }
   return stripeInstance;
 }
 
-async function waitForStripe() {
-  // Wait up to 15s for the publishable key to load from /config (cold starts can be slow)
-  for (let i = 0; i < 150; i++) {
-    if (STRIPE_PUBLISHABLE_KEY) return getStripe();
-    await new Promise(r => setTimeout(r, 100));
-  }
-  return null;
-}
-
-async function mountStripeCard() {
-  const errEl = document.getElementById('stripe-card-errors');
-  const payBtn = document.getElementById('payBtn');
-
-  const stripe = await waitForStripe();
-  if (!stripe) {
-    if (errEl) errEl.textContent = 'Payment system is still loading. Your backend may be starting up.';
-    if (payBtn) {
-      payBtn.textContent = 'Retry Loading Payment';
-      payBtn.disabled = false;
-      payBtn.style.opacity = '1';
-      payBtn.style.cursor = 'pointer';
-      payBtn.onclick = function() {
-        payBtn.textContent = 'Loading payment form…';
-        payBtn.disabled = true;
-        payBtn.style.opacity = '.5';
-        payBtn.style.cursor = 'not-allowed';
-        if (errEl) errEl.textContent = '';
-        mountStripeCard();
-      };
-    }
-    console.error('Stripe not ready - publishable key failed to load');
-    return;
-  }
-
-  // Destroy any previous card element instance (user went back then returned)
-  if (cardElement) {
-    try { cardElement.destroy(); } catch(e) {}
-    cardElement = null;
-  }
-
+function mountStripeCard() {
+  const stripe = getStripe();
+  if (!stripe) { console.error('Stripe.js not loaded'); return; }
   stripeElements = stripe.elements();
   cardElement = stripeElements.create('card', {
     style: {
@@ -1402,27 +1303,17 @@ async function mountStripeCard() {
     },
     hidePostalCode: false
   });
-
   const mountEl = document.getElementById('stripe-card-element');
-  if (!mountEl) return; // user navigated away before mount completed
-
+  if (!mountEl) return;
   cardElement.mount('#stripe-card-element');
   cardElement.on('change', e => {
+    const errEl = document.getElementById('stripe-card-errors');
     if (errEl) errEl.textContent = e.error ? e.error.message : '';
   });
-
-  // Card is ready - enable the Pay button with correct localised amount
-  if (payBtn) {
-    const {totalUSD} = getCartTotals();
-    payBtn.textContent = 'Pay ' + formatPrice(totalUSD) + ' →';
-    payBtn.disabled = false;
-    payBtn.style.opacity = '1';
-    payBtn.style.cursor = 'pointer';
-  }
 }
 
 async function processPayment() {
-  if (!cardElement) { showToast('⚠️','Card form is still loading. Please wait a moment and try again.','error'); return; }
+  if (!cardElement) { showToast('⚠️','Card form not ready. Please refresh.','error'); return; }
 
   const {totalUSD} = getCartTotals();
   const btn = document.getElementById('payBtn');
@@ -1431,14 +1322,13 @@ async function processPayment() {
 
   try {
     // STEP 1 — Create PaymentIntent on backend
-    // Convert the display amount to the active currency's subunits
-    const localAmount = Math.round(totalUSD * activeCurrency.rate * 100);
+    // We send USD cents — backend handles currency mapping
     const intentRes = await fetch(`${BACKEND_URL}/create-payment-intent`, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
-        amount: localAmount,            // local currency subunits
-        currency: activeCurrency.code, // real active currency
+        amount: Math.round(totalUSD * 100),   // USD cents
+        currency: 'USD',                       // always USD to backend
         customer: checkoutData,
         items: cart
       })
@@ -1470,7 +1360,7 @@ async function processPayment() {
             city:        checkoutData.city     || undefined,
             postal_code: checkoutData.zip      || undefined,
             state:       checkoutData.state    || undefined,
-            country:     checkoutData.countryCode || 'US'
+            country:     'US'  // billing country for card
           }
         }
       }
@@ -1488,8 +1378,8 @@ async function processPayment() {
         paymentIntentId: paymentIntent.id,
         customer: checkoutData,
         items: cart,
-        total: +(totalUSD * activeCurrency.rate).toFixed(2),
-        currency: activeCurrency.code,
+        total: totalUSD,
+        currency: 'USD',
         authUserId: user?.id || null
       })
     });
@@ -1508,8 +1398,6 @@ async function processPayment() {
     showToast('❌', err.message || 'Payment failed. Please try again.', 'error');
     btn.innerHTML = origText;
     btn.disabled = false;
-    btn.style.opacity = '1';
-    btn.style.cursor = 'pointer';
   }
 }
 
