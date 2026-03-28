@@ -143,7 +143,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:ce
 .ingredients-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1100px;margin:0 auto;position:relative}
 .ingredient-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;padding:28px;transition:all .3s}
 .ingredient-card:hover{background:rgba(212,56,13,.12);border-color:rgba(212,56,13,.3);transform:translateY(-4px)}
-.ingredient-emoji{font-size:36px;margin-bottom:16px}
+.ingredient-icon{margin-bottom:16px;line-height:1}
 .ingredient-name{font-family:var(--display);font-size:20px;font-weight:400;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase}
 .ingredient-benefit{font-size:13px;color:var(--ash);line-height:1.6;font-family:var(--serif);font-style:italic}
 
@@ -433,13 +433,13 @@ footer p{font-size:11px;color:rgba(139,123,107,.5)}
     <!-- User menu (shown when logged in) -->
     <div id="userMenu" class="user-menu" style="display:none">
       <button class="user-btn" id="userMenuBtn" onclick="toggleUserMenu(event)">
-        <span>👋</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <span id="userMenuName">Hi!</span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div class="user-dropdown" id="userDropdown">
-        <div class="user-dropdown-item" onclick="openOrdersModal()">📦 My Orders</div>
-        <div class="user-dropdown-item danger" onclick="logout()">🚪 Log out</div>
+        <div class="user-dropdown-item" onclick="openOrdersModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>My Orders</div>
+        <div class="user-dropdown-item danger" onclick="logout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>Log out</div>
       </div>
     </div>
 
@@ -504,9 +504,9 @@ footer p{font-size:11px;color:rgba(139,123,107,.5)}
       </div>
       <div style="font-size:12px;color:var(--mid);padding-bottom:16px">60 Gummies / 30 Days</div>
     </div>
-    <div class="float-badge fb1">✅ FDA Registered Facility</div>
-    <div class="float-badge fb2">🌱 100% Vegan</div>
-    <div class="float-badge fb3">⭐ #1 Best Seller</div>
+    <div class="float-badge fb1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg> FDA Registered</div>
+    <div class="float-badge fb2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ember)" stroke-width="2"><path d="M12 22c-4.97 0-9-2.24-9-5v-3c0-2.76 4.03-5 9-5s9 2.24 9 5v3c0 2.76-4.03 5-9 5z"/><path d="M12 14c4.97 0 9-2.24 9-5s-4.03-5-9-5-9 2.24-9 5 4.03 5 9 5z"/></svg> 100% Vegan</div>
+    <div class="float-badge fb3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> #1 Best Seller</div>
   </div>
 </section>
 
@@ -552,9 +552,9 @@ footer p{font-size:11px;color:rgba(139,123,107,.5)}
       <div class="section-tag">Subscribe & Save</div>
       <div class="section-title" style="text-align:left">Never Run Out<br>of <em style="color:var(--coral)">Wellness</em></div>
       <div class="sub-features" style="margin-top:28px">
-        <div class="sub-feature"><div class="sub-icon">💰</div><div><div class="sub-feat-title">Save Up to 20%</div><div class="sub-feat-desc">Lock in a lower price every delivery, forever.</div></div></div>
-        <div class="sub-feature"><div class="sub-icon">🚚</div><div><div class="sub-feat-title">Free Shipping Always</div><div class="sub-feat-desc">Subscribers never pay for shipping, on every order.</div></div></div>
-        <div class="sub-feature"><div class="sub-icon">⚡</div><div><div class="sub-feat-title">Cancel Anytime</div><div class="sub-feat-desc">No contracts, no hassle. Pause or cancel in one click.</div></div></div>
+        <div class="sub-feature"><div class="sub-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div><div class="sub-feat-title">Save Up to 20%</div><div class="sub-feat-desc">Lock in a lower price every delivery, forever.</div></div></div>
+        <div class="sub-feature"><div class="sub-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div><div class="sub-feat-title">Free Shipping Always</div><div class="sub-feat-desc">Subscribers never pay for shipping, on every order.</div></div></div>
+        <div class="sub-feature"><div class="sub-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></div><div><div class="sub-feat-title">Cancel Anytime</div><div class="sub-feat-desc">No contracts, no hassle. Pause or cancel in one click.</div></div></div>
       </div>
     </div>
     <div class="sub-card" id="subscriptionCard"></div>
@@ -588,7 +588,7 @@ footer p{font-size:11px;color:rgba(139,123,107,.5)}
 <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
 <div class="cart-drawer" id="cartDrawer">
   <div class="cart-header">
-    <div class="cart-title">Your Cart 🛒</div>
+    <div class="cart-title">Your Cart <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="2" style="vertical-align:middle"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.98-1.68l1.6-8.32H6"/></svg></div>
     <button class="cart-close" onclick="toggleCart()">✕</button>
   </div>
   <div class="cart-body" id="cartBody"></div>
@@ -599,7 +599,7 @@ footer p{font-size:11px;color:rgba(139,123,107,.5)}
 <div class="modal-overlay" id="loginModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('login')">✕</button>
-    <div class="modal-title">Welcome Back 👋</div>
+    <div class="modal-title">Welcome Back</div>
     <div class="modal-sub">Log in to your HECHARR account</div>
     <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email"></div>
     <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="loginPassword" type="password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
@@ -614,7 +614,7 @@ footer p{font-size:11px;color:rgba(139,123,107,.5)}
 <div class="modal-overlay" id="signupModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('signup')">✕</button>
-    <div class="modal-title">Create Account 🍬</div>
+    <div class="modal-title">Create Account</div>
     <div class="modal-sub">Join 50,000+ HECHARR customers</div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="signupFirst" placeholder="Alex" autocomplete="given-name"></div>
@@ -641,7 +641,7 @@ footer p{font-size:11px;color:rgba(139,123,107,.5)}
 <div class="modal-overlay" id="ordersModal">
   <div class="modal wide">
     <button class="modal-close" onclick="closeModal('orders')">✕</button>
-    <div class="modal-title">My Orders 📦</div>
+    <div class="modal-title">My Orders</div>
     <div class="modal-sub">Your order history</div>
     <div id="ordersContent" style="margin-top:12px"></div>
   </div>
@@ -750,14 +750,14 @@ const products = [
 ];
 
 const ingredients = [
-  {emoji:'🫐', name:'Elderberry',  benefit:'Powerful antioxidant supporting immune health and reducing oxidative stress.'},
-  {emoji:'🌊', name:'Vitamin D3',  benefit:'Essential for bone strength, immune function, and mood regulation.'},
-  {emoji:'🍋', name:'Vitamin C',   benefit:'Supports collagen synthesis, iron absorption, and immune defence.'},
-  {emoji:'⚡', name:'B12 Complex', benefit:'Boosts energy metabolism and supports healthy nerve function.'},
-  {emoji:'🌺', name:'Biotin',      benefit:'Promotes healthy hair, skin, and nails from within.'},
-  {emoji:'🦴', name:'Calcium',     benefit:'Builds and maintains strong bones and teeth throughout life.'},
-  {emoji:'🧠', name:'Omega-3',     benefit:'Supports brain health, memory, and cardiovascular wellness.'},
-  {emoji:'✨', name:'Zinc',        benefit:'Essential for immunity, wound healing, and DNA synthesis.'},
+  {icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--fire)" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><circle cx="7" cy="8" r="2.5"/><circle cx="17" cy="8" r="2.5"/><circle cx="9" cy="16" r="2.5"/><circle cx="15" cy="16" r="2.5"/><path d="M12 2v3M12 19v3"/></svg>', name:'Elderberry',  benefit:'Powerful antioxidant supporting immune health and reducing oxidative stress.'},
+  {icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>', name:'Vitamin D3',  benefit:'Essential for bone strength, immune function, and mood regulation.'},
+  {icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><path d="M12 22c-4-3-8-6-8-11a8 8 0 0116 0c0 5-4 8-8 11z"/><circle cx="12" cy="11" r="3"/></svg>', name:'Vitamin C',   benefit:'Supports collagen synthesis, iron absorption, and immune defence.'},
+  {icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--ember)" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>', name:'B12 Complex', benefit:'Boosts energy metabolism and supports healthy nerve function.'},
+  {icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#D4607A" stroke-width="1.5"><path d="M12 3c-1.5 0-3 .5-4 2-2 3 0 6 4 10 4-4 6-7 4-10-1-1.5-2.5-2-4-2z"/><path d="M12 3v10"/><path d="M8 14c0 2.2 1.8 4 4 4s4-1.8 4-4"/></svg>', name:'Biotin',      benefit:'Promotes healthy hair, skin, and nails from within.'},
+  {icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--bone)" stroke-width="1.5"><path d="M6 4a2 2 0 013 0c1.5 1.5 0 4 0 4s2.5 1.5 0 4c-1 1-3 0-3 0v8"/><path d="M18 4a2 2 0 00-3 0c-1.5 1.5 0 4 0 4s-2.5 1.5 0 4c1 1 3 0 3 0v8"/></svg>', name:'Calcium',     benefit:'Builds and maintains strong bones and teeth throughout life.'},
+  {icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#8B70B8" stroke-width="1.5"><path d="M12 2a7 7 0 017 7c0 3-2 5-4 7-1 1-2 3-3 6-1-3-2-5-3-6-2-2-4-4-4-7a7 7 0 017-7z"/><circle cx="12" cy="9" r="2"/></svg>', name:'Omega-3',     benefit:'Supports brain health, memory, and cardiovascular wellness.'},
+  {icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><path d="M12 3l2.5 5.5L20 9.5l-4 4 1 5.5L12 16.5 7 19l1-5.5-4-4 5.5-1z"/></svg>', name:'Zinc',        benefit:'Essential for immunity, wound healing, and DNA synthesis.'},
 ];
 
 const reviewsData = [
@@ -803,7 +803,7 @@ let cardElement = null;
 
 // ===== RENDER =====
 function renderMarquee() {
-  const items = ['🔥 Vegan Certified','🔥 Gluten Free','🔥 No Artificial Colours','🔥 Lab Tested','🔥 Non-GMO','🔥 Sugar Free','🔥 30-Day Guarantee','🔥 Free Shipping Over $50'];
+  const items = ['● Vegan Certified','● Gluten Free','● No Artificial Colours','● Lab Tested','● Non-GMO','● Sugar Free','● 30-Day Guarantee','● Free Shipping Over $50'];
   const track = document.getElementById('marqueeTrack');
   track.innerHTML = [...items,...items].map(i=>`<div class="marquee-item">${i}<div class="mdot"></div></div>`).join('');
 }
@@ -812,8 +812,8 @@ function renderProducts() {
   const grid = document.getElementById('productsGrid');
   grid.innerHTML = products.map(p => `
     <div class="product-card">
-      ${p.badge === 'popular' ? '<div class="product-badge" style="background:var(--deep)">⭐ Best Seller</div>' : ''}
-      ${p.badge === 'new' ? '<div class="product-badge" style="background:var(--coral)">✨ New</div>' : ''}
+      ${p.badge === 'popular' ? '<div class="product-badge" style="background:var(--deep)">★ BEST SELLER</div>' : ''}
+      ${p.badge === 'new' ? '<div class="product-badge" style="background:var(--coral)">✦ NEW</div>' : ''}
       <div class="product-img" style="background:${p.bg}">
         <div class="gummies-wrap">${p.gummies.map(g=>`<div class="gummy ${g}" style="width:22px;height:25px"></div>`).join('')}</div>
       </div>
@@ -837,7 +837,7 @@ function renderProducts() {
 function renderIngredients() {
   document.getElementById('ingredientsGrid').innerHTML = ingredients.map(i=>`
     <div class="ingredient-card">
-      <div class="ingredient-emoji">${i.emoji}</div>
+      <div class="ingredient-icon">${i.icon}</div>
       <div class="ingredient-name">${i.name}</div>
       <div class="ingredient-benefit">${i.benefit}</div>
     </div>
@@ -877,7 +877,7 @@ function renderSubscription() {
     </div>
     <button class="btn-modal" onclick="handleSubscribe()">Subscribe & Save →</button>
     <button class="btn-modal" style="background:transparent;color:var(--coral);border:1.5px solid var(--coral);margin-top:4px" onclick="addSubToCart()">Or Add to Cart as One-Time</button>
-    <div style="text-align:center;font-size:12px;color:var(--mid);margin-top:10px">🔒 Cancel anytime · Free shipping · No commitment</div>
+    <div style="text-align:center;font-size:12px;color:var(--mid);margin-top:10px">Cancel anytime · Free shipping · No commitment</div>
     <div style="text-align:center;font-size:11px;color:var(--mid);margin-top:6px;font-style:italic">Note: "Subscribe & Save" requires <a href="#" onclick="event.preventDefault();document.getElementById('subSetupInfo').style.display=document.getElementById('subSetupInfo').style.display==='none'?'block':'none'" style="color:var(--coral);text-decoration:underline">Stripe Products setup</a></div>
     <div id="subSetupInfo" style="display:none;margin-top:10px;background:var(--light);padding:14px;border-radius:12px;font-size:12px;color:var(--warm);line-height:1.6;text-align:left">
       <strong>To enable real subscriptions:</strong><br>
@@ -901,19 +901,19 @@ async function handleSubscribe() {
   const priceId = SUBSCRIPTION_PRICE_IDS[selectedSubOption];
 
   if (!priceId) {
-    showToast('ℹ️', 'Subscription products not yet configured in Stripe. Adding to cart as one-time purchase instead.', '');
+    showToast('i', 'Subscription products not yet configured in Stripe. Adding to cart as one-time purchase instead.', '');
     addSubToCart();
     return;
   }
 
   if (!user) {
-    showToast('⚠️', 'Please log in or sign up first to subscribe.', 'error');
+    showToast('!', 'Please log in or sign up first to subscribe.', 'error');
     openModal('login');
     return;
   }
 
   try {
-    showToast('⏳', 'Redirecting to Stripe Checkout...', '');
+    showToast('→', 'Redirecting to Stripe Checkout...', '');
     const currentUrl = window.location.origin + window.location.pathname;
     const res = await fetch(`${BACKEND_URL}/create-subscription`, {
       method: 'POST',
@@ -935,7 +935,7 @@ async function handleSubscribe() {
     window.location.href = data.url;
   } catch (err) {
     console.error('Subscription error:', err);
-    showToast('❌', err.message || 'Subscription failed.', 'error');
+    showToast('✕', err.message || 'Subscription failed.', 'error');
   }
 }
 
@@ -965,7 +965,7 @@ function addToCart(productId) {
   if (existing) existing.qty++;
   else cart.push({id:productId, name:p.name, priceUSD:p.priceUSD, qty:1, emoji:p.gummies[0]});
   saveCart(); updateCartUI();
-  showToast('🔥', `${p.name} added to cart!`, 'success');
+  showToast('✓', `${p.name} added to cart!`, 'success');
 }
 
 function addSubToCart() {
@@ -973,7 +973,7 @@ function addSubToCart() {
   const labels = {monthly:'Monthly', bimonthly:'Bi-Monthly', quarterly:'Quarterly'};
   cart.push({id:`sub_${Date.now()}`, name:`Daily Essentials — ${labels[selectedSubOption]} Sub`, priceUSD:prices[selectedSubOption], qty:1, sub:true});
   saveCart(); updateCartUI(); toggleCart();
-  showToast('🎉', 'Subscription added! Savings applied.', 'success');
+  showToast('✓', 'Subscription added! Savings applied.', 'success');
 }
 
 function removeFromCart(idx) { cart.splice(idx,1); saveCart(); updateCartUI(); renderCartDrawer(); }
@@ -998,17 +998,17 @@ function renderCartDrawer() {
   const colors = {g1:'#D4380D',g2:'#E8A838',g3:'#3D7A4A',g4:'#8B70B8',g5:'#D4607A'};
 
   if (cart.length === 0) {
-    body.innerHTML = `<div class="cart-empty"><div class="cart-empty-emoji">🛒</div><div class="cart-empty-text">Your cart is empty</div><div class="cart-empty-sub">Add some gummies to get started!</div></div>`;
+    body.innerHTML = `<div class="cart-empty"><div class="cart-empty-emoji"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--ash)" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.98-1.68l1.6-8.32H6"/></svg></div><div class="cart-empty-text">Your cart is empty</div><div class="cart-empty-sub">Add some gummies to get started!</div></div>`;
     footer.innerHTML = '';
     return;
   }
 
   body.innerHTML = cart.map((item,idx) => `
     <div class="cart-item">
-      <div class="cart-item-img" style="background:${colors[item.emoji]||'#FF6B47'}22"><span style="font-size:22px">🍬</span></div>
+      <div class="cart-item-img" style="background:${colors[item.emoji]||'#FF6B47'}22"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="3" width="14" height="18" rx="7"/><path d="M9 8h6M9 12h6"/></svg></div>
       <div style="flex:1">
         <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-variant">${item.sub ? '🔄 Subscription' : '📦 One-time'}</div>
+        <div class="cart-item-variant">${item.sub ? '↻ Subscription' : '○ One-time'}</div>
         <div class="cart-item-qty">
           <button class="qty-btn" onclick="changeQty(${idx},-1)">−</button>
           <span class="qty-num">${item.qty}</span>
@@ -1029,10 +1029,10 @@ function renderCartDrawer() {
   footer.innerHTML = `
     <div style="padding:16px 24px;border-top:1px solid var(--light)">
       <div class="cart-subtotal"><span>Subtotal</span><span>${formatPrice(subtotalUSD)}</span></div>
-      <div class="cart-subtotal"><span>Shipping</span><span>${shippingUSD === 0 ? '🎉 Free' : formatPrice(shippingUSD)}</span></div>
+      <div class="cart-subtotal"><span>Shipping</span><span>${shippingUSD === 0 ? 'FREE' : formatPrice(shippingUSD)}</span></div>
       <div class="cart-total"><span>Total</span><span>${formatPrice(totalUSD)}</span></div>
       <button class="btn-primary" style="width:100%;margin-top:4px" onclick="proceedToCheckout()">Checkout →</button>
-      <div style="text-align:center;font-size:12px;color:var(--mid);margin-top:8px">🔒 Secure checkout · Powered by Stripe</div>
+      <div style="text-align:center;font-size:12px;color:var(--mid);margin-top:8px">Secure checkout · Powered by Stripe</div>
     </div>
   `;
 }
@@ -1127,7 +1127,7 @@ async function handleLogin() {
     closeModal('login');
     updateAuthUI();
     updateCartUI();
-    showToast('👋', `Welcome back, ${user.name.split(' ')[0]}!`, 'success');
+    showToast('→', `Welcome back, ${user.name.split(' ')[0]}!`, 'success');
   } catch(err) {
     errEl.textContent = err.message;
   } finally {
@@ -1176,7 +1176,7 @@ async function handleSignup() {
     closeModal('signup');
     updateAuthUI();
     updateCartUI();
-    showToast('🎉', `Welcome to HECHARR, ${first}!`, 'success');
+    showToast('✓', `Welcome to HECHARR, ${first}!`, 'success');
   } catch(err) {
     errEl.textContent = err.message;
   } finally {
@@ -1199,7 +1199,7 @@ function logout() {
 
   updateAuthUI();
   updateCartUI();
-  showToast('👋', 'You\'ve been logged out.', '');
+  showToast('→', 'You\'ve been logged out.', '');
 }
 
 function updateAuthUI() {
@@ -1227,7 +1227,7 @@ async function openOrdersModal() {
     if (!res.ok || !data.success) throw new Error(data.error || 'Failed to load orders.');
 
     if (!data.orders.length) {
-      content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mid)">📭 No orders yet. Shop our products to get started!</div>';
+      content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mid)">No orders yet. Shop our products to get started!</div>';
       return;
     }
 
@@ -1281,14 +1281,14 @@ function renderCheckout() {
   const orderMini = `
     <div class="order-mini">
       ${cart.map(i=>`<div class="order-mini-item"><span>${i.name} ×${i.qty}</span><span>${formatPrice(i.priceUSD*i.qty)}</span></div>`).join('')}
-      <div class="order-mini-item"><span>Shipping</span><span>${shippingUSD===0?'🎉 Free':formatPrice(shippingUSD)}</span></div>
+      <div class="order-mini-item"><span>Shipping</span><span>${shippingUSD===0?'FREE':formatPrice(shippingUSD)}</span></div>
       <div class="order-mini-total"><span>Total</span><span style="color:var(--coral)">${formatPrice(totalUSD)}</span></div>
     </div>
   `;
 
   if (checkoutStep === 1) {
     content.innerHTML = `
-      <div class="modal-title">Checkout 🛒</div>
+      <div class="modal-title">Checkout</div>
       <div class="checkout-steps">
         <div class="ck-step active">1 · Info</div>
         <div class="ck-step">2 · Shipping</div>
@@ -1305,7 +1305,7 @@ function renderCheckout() {
     `;
   } else if (checkoutStep === 2) {
     content.innerHTML = `
-      <div class="modal-title">Shipping Address 📦</div>
+      <div class="modal-title">Shipping Address</div>
       <div class="checkout-steps">
         <div class="ck-step done">✓ Info</div>
         <div class="ck-step active">2 · Shipping</div>
@@ -1327,7 +1327,7 @@ function renderCheckout() {
     `;
   } else if (checkoutStep === 3) {
     content.innerHTML = `
-      <div class="modal-title">Payment 💳</div>
+      <div class="modal-title">Payment</div>
       <div class="checkout-steps">
         <div class="ck-step done">✓ Info</div>
         <div class="ck-step done">✓ Shipping</div>
@@ -1359,7 +1359,7 @@ function renderCheckout() {
     content.innerHTML = `
       <div style="text-align:center;padding:12px 0 0">
         <div style="width:72px;height:72px;background:linear-gradient(135deg,#2E9E5B,#6DD68A);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 18px;animation:modalIn .5s cubic-bezier(.16,1,.3,1)">✓</div>
-        <div class="modal-title" style="text-align:center">Order Confirmed! 🎉</div>
+        <div class="modal-title" style="text-align:center">Order Confirmed</div>
         <div class="modal-sub" style="text-align:center">Thank you! Your gummies are on their way.</div>
         <div style="background:var(--light);border-radius:16px;padding:18px;margin:20px 0;text-align:left">
           <div style="font-size:12px;color:var(--mid);margin-bottom:3px">Order Number</div>
@@ -1380,8 +1380,8 @@ function ckStep1() {
   checkoutData.lastName  = document.getElementById('co_last').value.trim();
   checkoutData.email     = document.getElementById('co_email').value.trim();
   checkoutData.phone     = document.getElementById('co_phone').value.trim();
-  if (!checkoutData.firstName) { showToast('⚠️','First name is required.','error'); return; }
-  if (!checkoutData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutData.email)) { showToast('⚠️','Please enter a valid email.','error'); return; }
+  if (!checkoutData.firstName) { showToast('!','First name is required.','error'); return; }
+  if (!checkoutData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutData.email)) { showToast('!','Please enter a valid email.','error'); return; }
   checkoutStep = 2; renderCheckout();
 }
 
@@ -1392,8 +1392,8 @@ function ckStep2() {
   checkoutData.zip      = document.getElementById('co_zip').value.trim();
   checkoutData.state    = document.getElementById('co_state').value.trim();
   checkoutData.country  = document.getElementById('co_country').value.trim();
-  if (!checkoutData.address || !checkoutData.city) { showToast('⚠️','Address and city are required.','error'); return; }
-  if (!checkoutData.zip) { showToast('⚠️','ZIP / postcode is required.','error'); return; }
+  if (!checkoutData.address || !checkoutData.city) { showToast('!','Address and city are required.','error'); return; }
+  if (!checkoutData.zip) { showToast('!','ZIP / postcode is required.','error'); return; }
   checkoutStep = 3; renderCheckout();
 }
 
@@ -1431,7 +1431,7 @@ function mountStripeCard() {
 }
 
 async function processPayment() {
-  if (!cardElement) { showToast('⚠️','Card form not ready. Please refresh.','error'); return; }
+  if (!cardElement) { showToast('!','Card form not ready. Please refresh.','error'); return; }
 
   const {totalUSD} = getCartTotals();
   const btn = document.getElementById('payBtn');
@@ -1509,11 +1509,11 @@ async function processPayment() {
     checkoutStep = 4;
     checkoutData.orderId = saveData.orderId;
     renderCheckout();
-    showToast('🎉', 'Payment successful! Order confirmed.', 'success');
+    showToast('✓', 'Payment successful! Order confirmed.', 'success');
 
   } catch(err) {
     console.error('Payment error:', err.message);
-    showToast('❌', err.message || 'Payment failed. Please try again.', 'error');
+    showToast('✕', err.message || 'Payment failed. Please try again.', 'error');
     btn.innerHTML = origText;
     btn.disabled = false;
   }
@@ -1567,9 +1567,9 @@ function renderMobileAuth() {
   const section = document.getElementById('mobileAuthSection');
   if (user) {
     section.innerHTML = `
-      <div style="color:var(--cream);font-size:14px;margin-bottom:12px">👋 Hi, ${user.name?.split(' ')[0] || 'there'}!</div>
+      <div style="color:var(--cream);font-size:14px;margin-bottom:12px">Hi, ${user.name?.split(' ')[0] || 'there'}!</div>
       <div class="mobile-auth-btns">
-        <button class="mob-login" onclick="closeMobileMenu();openOrdersModal()">📦 My Orders</button>
+        <button class="mob-login" onclick="closeMobileMenu();openOrdersModal()">My Orders</button>
         <button class="mob-signup" onclick="closeMobileMenu();logout()" style="background:var(--red);border-color:var(--red)">Log out</button>
       </div>
     `;
@@ -1604,11 +1604,11 @@ updateCartUI();
 (function checkSubscriptionResult() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('subscription') === 'success') {
-    showToast('🎉', 'Subscription activated! You\'ll receive your first delivery soon.', 'success');
+    showToast('✓', 'Subscription activated! You\'ll receive your first delivery soon.', 'success');
     // Clean URL
     window.history.replaceState({}, '', window.location.pathname);
   } else if (params.get('subscription') === 'cancelled') {
-    showToast('ℹ️', 'Subscription checkout was cancelled.', '');
+    showToast('i', 'Subscription checkout was cancelled.', '');
     window.history.replaceState({}, '', window.location.pathname);
   }
 })();
